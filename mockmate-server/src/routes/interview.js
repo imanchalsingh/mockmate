@@ -1,15 +1,26 @@
 import express from "express";
 const router = express.Router();
+import { askInterview } from "../services/aiServices.js";
+
 
 router.post("/ask", async (req, res) => {
-  const { message } = req.body;
+  try {
+    console.log("Request received:", req.body);
 
-  // fake AI response
-  const reply = `You said: "${message}". Tell me more about your experience.`;
+    const { message } = req.body;
 
-  res.json({
-    reply,
-  });
+    const reply = await askInterview(message);
+
+    console.log("AI Reply:", reply);
+
+    res.json({ reply });
+
+  } catch (error) {
+    console.error("FULL ERROR 👉", error);
+    res.status(500).json({
+      error: error.message || "Server error",
+    });
+  }
 });
 
 export default router;
