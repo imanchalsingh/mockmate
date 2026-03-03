@@ -12,7 +12,7 @@ export default function ChatContainer() {
         }
     ]);
 
-    const sendMessage = (text: string) => {
+    const sendMessage = async (text: string) => {
         const userMessage: Message = {
             id: Date.now().toString(),
             role: "user",
@@ -21,17 +21,27 @@ export default function ChatContainer() {
 
         setMessages(prev => [...prev, userMessage]);
 
-        // fake AI response
-        setTimeout(() => {
-            setMessages(prev => [
-                ...prev,
-                {
-                    id: Math.random().toString(),
-                    role: "ai",
-                    content: "Interesting answer! Tell me more."
-                }
-            ]);
-        }, 800);
+        const res = await fetch(
+            "http://localhost:3000/api/interview/ask",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ message: text })
+            }
+        );
+
+        const data = await res.json();
+
+        setMessages(prev => [
+            ...prev,
+            {
+                id: Math.random().toString(),
+                role: "ai",
+                content: data.reply
+            }
+        ]);
     };
 
     return (
