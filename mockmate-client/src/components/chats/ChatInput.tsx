@@ -63,8 +63,51 @@ export default function ChatInput({ onSend }: ChatInputProps) {
                     />
                 </svg>
             </button>
-            <button onClick={startListening}>
-                {listening ? "🎙️ Listening..." : "🎤"}
+            <button
+                onClick={startListening}
+                className={`p-3 rounded-lg transition-all duration-300 ${listening
+                        ? 'bg-yellow-400/20 text-yellow-400 border border-yellow-400/50'
+                        : 'bg-gray-800 text-gray-400 hover:text-yellow-400 hover:border-yellow-400/50 border border-gray-700'
+                    }`}
+            >
+                {listening ? (
+                    <svg
+                        className="w-4 h-4 animate-pulse"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        {/* Listening icon with sound waves */}
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
+                        />
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15.5 8.5A3.5 3.5 0 0112 12M8.5 8.5A3.5 3.5 0 0012 12"
+                            className="opacity-50"
+                        />
+                    </svg>
+                ) : (
+                    <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        {/* Microphone icon */}
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
+                        />
+                    </svg>
+                )}
             </button>
         </div>
     );
