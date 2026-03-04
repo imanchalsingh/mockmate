@@ -1,7 +1,7 @@
 import { useState } from "react";
 import MessageBubble from "./MessageBubble";
-import ChatInput from "./ChatInput";
-import type { Message } from "../types";
+import ChatInput from "../chats/ChatInput";
+import type { Message } from "../../types";
 
 export default function ChatContainer() {
     const [messages, setMessages] = useState<Message[]>([
