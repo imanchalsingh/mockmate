@@ -10,9 +10,6 @@ router.post("/ask", async (req, res) => {
     const { message } = req.body;
 
     const reply = await askInterview(message);
-
-    console.log("AI Reply:", reply);
-
     res.json({ reply });
 
   } catch (error) {

@@ -41,10 +41,10 @@ export const askInterview = async (userMessage) => {
       throw new Error("Ollama request failed");
     }
 
-    // ✅ FIRST create data
+    // FIRST create data
     const data = await response.json();
 
-    // ✅ THEN use it
+    // THEN use it
     console.log("OLLAMA RAW RESPONSE:", data);
 
     const aiReply =

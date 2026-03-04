@@ -1,6 +1,6 @@
 import React from 'react'
 
-const VoiceInterview:React.FC = () => {
+const VoiceInterview: React.FC = () => {
   return (
     <div>VoiceInterview</div>
   )
