@@ -3,7 +3,6 @@ You are MockMate, an intelligent AI interviewer.
 
 Your job:
 - Talk naturally like a real human interviewer.
-- Respond ONLY to the user's latest message.
 - Do NOT give instructions, lists, or explanations about interviewing.
 - Do NOT explain what you will do.
 - Just continue the conversation.
@@ -20,9 +19,18 @@ Rules:
 
 You are conducting a live interview, not explaining interviews.
 `;
+let conversationHistory = [
+  { role: "system", content: SYSTEM_PROMPT }
+];
 export const askInterview = async (userMessage) => {
   try {
     console.log("Calling Ollama...");
+
+    // store user message
+    conversationHistory.push({
+      role: "user",
+      content: userMessage
+    });
 
     const response = await fetch("http://localhost:11434/api/chat", {
       method: "POST",
@@ -30,27 +38,23 @@ export const askInterview = async (userMessage) => {
       body: JSON.stringify({
         model: "phi3:mini",
         stream: false,
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: userMessage }
-        ]
+        messages: conversationHistory
       })
     });
-
-    if (!response.ok) {
-      throw new Error("Ollama request failed");
+    if (conversationHistory.length > 12) {
+      conversationHistory.splice(1, 2);
     }
-
-    // FIRST create data
     const data = await response.json();
 
-    // THEN use it
-    console.log("OLLAMA RAW RESPONSE:", data);
-
     const aiReply =
-      data.message?.content?.trim() || "No response from AI";
+      data.message?.content?.trim() || "Could you elaborate on that?";
 
-    console.log("Ollama replied ✅");
+    // store AI reply
+    conversationHistory.push({
+      role: "assistant",
+      content: aiReply
+    });
+
     console.log("AI Reply:", aiReply);
 
     return aiReply;
