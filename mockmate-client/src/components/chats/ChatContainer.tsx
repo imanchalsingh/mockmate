@@ -2,6 +2,7 @@ import { useState } from "react";
 import MessageBubble from "./MessageBubble";
 import ChatInput from "../chats/ChatInput";
 import type { Message } from "../../types";
+import { fetchWithAuth } from "../../api/fetchWithAuth";
 
 export default function ChatContainer() {
     const [messages, setMessages] = useState<Message[]>([
@@ -23,11 +24,8 @@ export default function ChatContainer() {
         setMessages(prev => [...prev, userMessage]);
         setIsLoading(true);
 
-        const res = await fetch("http://localhost:5000/api/interview/ask", {
+        const res = await fetchWithAuth("/interview/ask", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
             body: JSON.stringify({
                 message: text,
             }),
@@ -67,7 +65,7 @@ export default function ChatContainer() {
                             content={msg.content}
                         />
                     ))}
-                    
+
                     {/* Typing indicator placeholder */}
                     {isLoading && (
                         <div className="flex items-center gap-2 text-gray-400 text-sm">
@@ -83,10 +81,10 @@ export default function ChatContainer() {
             <div className="border-t border-gray-800 bg-gray-900 p-4">
                 <div className="max-w-4xl mx-auto">
                     <ChatInput onSend={sendMessage} />
-                    
+
                     {/* Footer note */}
                     <p className="text-xs text-gray-600 mt-2 text-center">
-                        Press <span className="text-yellow-400">Enter</span> to send, 
+                        Press <span className="text-yellow-400">Enter</span> to send,
                         <span className="text-yellow-400 ml-1">Shift + Enter</span> for new line
                     </p>
                 </div>
