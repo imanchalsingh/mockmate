@@ -38,4 +38,28 @@ router.post("/ask", protect, async (req, res) => {
   }
 });
 
+// get histroy of convo
+router.get("/history", protect, async (req, res) => {
+  try {
+    const interview = await Interview.findOne({
+      user: req.user.id,
+    });
+
+    if (!interview) {
+      return res.json({ messages: [] });
+    }
+
+    res.json({
+      messages: interview.messages,
+    });
+
+  } catch (error) {
+    console.error("FETCH HISTORY ERROR 👉", error);
+    res.status(500).json({
+      error: "Failed to fetch history",
+    });
+  }
+});
+
+
 export default router;
