@@ -1,12 +1,12 @@
-const API = "http://localhost:5000/api";
+const BASE_URL = "http://localhost:5000/api";
 
 export const fetchWithAuth = async (
-  endpoint: string,
+  url: string,
   options: RequestInit = {}
 ) => {
   const token = localStorage.getItem("token");
 
-  const res = await fetch(`${API}${endpoint}`, {
+  return fetch(`${BASE_URL}${url}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -14,6 +14,4 @@ export const fetchWithAuth = async (
       ...(options.headers || {}),
     },
   });
-
-  return res;
 };
