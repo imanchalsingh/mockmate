@@ -3,15 +3,11 @@ import MessageBubble from "./MessageBubble";
 import ChatInput from "../chats/ChatInput";
 import type { Message } from "../../types";
 import { fetchWithAuth } from "../../api/fetchWithAuth";
+import { useEffect } from "react";
+import { getInterviewHistory } from "../../api/history";
 
 export default function ChatContainer() {
-    const [messages, setMessages] = useState<Message[]>([
-        {
-            id: "1",
-            role: "ai",
-            content: "Hi, I'm MockMate. Ready for your interview?"
-        }
-    ]);
+    const [messages, setMessages] = useState<Message[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
     const sendMessage = async (text: string) => {
@@ -30,7 +26,6 @@ export default function ChatContainer() {
                 message: text,
             }),
         });
-
         const data = await res.json();
 
         setMessages(prev => [
@@ -43,7 +38,21 @@ export default function ChatContainer() {
         ]);
         setIsLoading(false);
     };
+    useEffect(() => {
+        const loadHistory = async () => {
+            const data = await getInterviewHistory();
 
+            const formatted = data.messages.map((msg: any, index: number) => ({
+                id: index.toString(),
+                role: msg.role === "assistant" ? "ai" : "user",
+                content: msg.content,
+            }));
+
+            setMessages(formatted);
+        };
+
+        loadHistory();
+    }, []);
     return (
         <div className="flex flex-col h-screen bg-gray-900">
             {/* Header */}
