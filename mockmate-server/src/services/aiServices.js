@@ -19,48 +19,46 @@ Rules:
 
 You are conducting a live interview, not explaining interviews.
 `;
-let conversationHistory = [
-  { role: "system", content: SYSTEM_PROMPT }
-];
-export const askInterview = async (userMessage) => {
-  try {
-    console.log("Calling Ollama...");
 
-    // store user message
-    conversationHistory.push({
-      role: "user",
-      content: userMessage
-    });
+const sessions = new Map();
 
-    const response = await fetch("http://localhost:11434/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "phi3:mini",
-        stream: false,
-        messages: conversationHistory
-      })
-    });
-    if (conversationHistory.length > 12) {
-      conversationHistory.splice(1, 2);
-    }
-    const data = await response.json();
+export const askInterview = async (userId, sessionId, userMessage) => {
 
-    const aiReply =
-      data.message?.content?.trim() || "Could you elaborate on that?";
+  const key = `${userId}-${sessionId}`;
 
-    // store AI reply
-    conversationHistory.push({
-      role: "assistant",
-      content: aiReply
-    });
-
-    console.log("AI Reply:", aiReply);
-
-    return aiReply;
-
-  } catch (error) {
-    console.error("Ollama ERROR:", error);
-    throw error;
+  if (!sessions.has(key)) {
+    sessions.set(key, [
+      { role: "system", content: SYSTEM_PROMPT }
+    ]);
   }
+
+  const conversationHistory = sessions.get(key);
+
+  conversationHistory.push({
+    role: "user",
+    content: userMessage
+  });
+
+  const response = await fetch("http://localhost:11434/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "phi3:mini",
+      stream: false,
+      messages: conversationHistory
+    })
+  });
+
+  const data = await response.json();
+
+  const aiReply =
+    data.message?.content?.trim() ||
+    "Could you elaborate on that?";
+
+  conversationHistory.push({
+    role: "assistant",
+    content: aiReply
+  });
+
+  return aiReply;
 };
