@@ -32,11 +32,11 @@ export default function UnifiedInterviewComponent() {
     const [editingChatId, setEditingChatId] = useState<string | null>(null);
     const [editingTitle, setEditingTitle] = useState<string>("");
     const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
-    
-    // Track initialization to prevent multiple calls
+
+    // Track initialization
     const [isLoadingSessions, setIsLoadingSessions] = useState<boolean>(true);
-    const initialLoadDone = useRef<boolean>(false);
-    
+    const hasInitialized = useRef<boolean>(false);
+
     // Voice-specific states
     const [listening, setListening] = useState<boolean>(false);
     const [isProcessing, setIsProcessing] = useState<boolean>(false);
@@ -47,30 +47,32 @@ export default function UnifiedInterviewComponent() {
 
     // Load chat sessions on mount only once
     useEffect(() => {
-        if (!initialLoadDone.current) {
-            loadChatSessions();
-        }
+        loadChatSessions();
     }, []);
 
-    // Handle initial load - only once after sessions are loaded
+    // Handle initial load - runs only once after sessions are loaded
     useEffect(() => {
-        // Don't proceed if still loading sessions or already initialized
         if (isLoadingSessions) return;
-        if (initialLoadDone.current) return;
-        
+        if (hasInitialized.current) return;
+
         const initializeChat = async () => {
-            if (chatSessions.length === 0) {
-                await createNewChat(inputMode, true);
-            } else {
-                // Chats exist, load the most recent one
-                const mostRecent = chatSessions[0];
-                await loadChatHistory(mostRecent.id);
+            try {
+                if (chatSessions.length === 0) {
+                    // No chats exist, create one
+                    await createNewChat(inputMode, true);
+                } else {
+                    // Chats exist, load the most recent one
+                    const mostRecent = chatSessions[0];
+                    await loadChatHistory(mostRecent.id);
+                }
+                hasInitialized.current = true;
+            } catch (error) {
+                console.error("Failed to initialize chat:", error);
             }
-            initialLoadDone.current = true;
         };
-        
+
         initializeChat();
-    }, [isLoadingSessions, chatSessions, inputMode]);
+    }, [isLoadingSessions]);
 
     const loadChatSessions = async () => {
         setIsLoadingSessions(true);
@@ -105,31 +107,35 @@ export default function UnifiedInterviewComponent() {
             const data = await res.json();
             setChatId(data._id);
             setMessages([]);
-            
-            // Only reload sessions if not initial load to avoid double refresh
-            if (!isInitial) {
-                await loadChatSessions();
+
+            // Update sessions list
+            const newSession: ChatSession = {
+                id: data._id,
+                _id: data._id,
+                title: mode === "voice" ? "New Voice Interview" : "New Chat Interview",
+                timestamp: new Date().toISOString(),
+                messageCount: 0,
+                mode: mode
+            };
+
+            if (isInitial) {
+                setChatSessions([newSession]);
             } else {
-                // For initial load, just add the new chat to the list
-                const newSession: ChatSession = {
-                    id: data._id,
-                    _id: data._id,
-                    title: mode === "voice" ? "New Voice Interview" : "New Chat Interview",
-                    timestamp: new Date().toISOString(),
-                    messageCount: 0,
-                    mode: mode
-                };
-                setChatSessions([newSession, ...chatSessions]);
+                setChatSessions(prev => [newSession, ...prev]);
+                await loadChatSessions(); // Refresh sessions from server for non-initial
             }
+
+            return data._id;
         } catch (error) {
             console.error("Failed to create new chat:", error);
+            return null;
         }
     };
 
     const loadChatHistory = async (sessionId: string) => {
-        // Prevent loading if already loading or same chat
+        // Prevent loading if already loading
         if (isLoadingHistory) return;
-        
+
         setIsLoadingHistory(true);
         try {
             const response = await fetchWithAuth(`/interview/history/${sessionId}`);
@@ -218,7 +224,7 @@ export default function UnifiedInterviewComponent() {
                     body: JSON.stringify({ title: editingTitle.trim() }),
                 });
                 // Update local state
-                setChatSessions(prev => prev.map(s => 
+                setChatSessions(prev => prev.map(s =>
                     s.id === sessionId ? { ...s, title: editingTitle.trim() } : s
                 ));
             } catch (error) {
@@ -287,11 +293,16 @@ export default function UnifiedInterviewComponent() {
 
     // Send message to AI
     const sendMessage = async (text: string) => {
-        if (!chatId) {
-            await createNewChat(inputMode, false);
+        let currentChatId = chatId;
+
+        if (!currentChatId) {
+            const newChatId = await createNewChat(inputMode, false);
+            if (!newChatId) {
+                console.error("Failed to create chat");
+                return;
+            }
+            currentChatId = newChatId;
         }
-        
-        if (!chatId) return;
 
         try {
             setIsProcessing(true);
@@ -304,7 +315,7 @@ export default function UnifiedInterviewComponent() {
                 },
                 body: JSON.stringify({
                     message: text,
-                    chatId,
+                    chatId: currentChatId,
                     mode: inputMode,
                 }),
             });
@@ -324,8 +335,8 @@ export default function UnifiedInterviewComponent() {
             }
 
             // Update message count in sidebar
-            setChatSessions(prev => prev.map(s => 
-                s.id === chatId ? { ...s, messageCount: s.messageCount + 2 } : s
+            setChatSessions(prev => prev.map(s =>
+                s.id === currentChatId ? { ...s, messageCount: s.messageCount + 2 } : s
             ));
         } catch (err) {
             console.error(err);
@@ -404,7 +415,7 @@ export default function UnifiedInterviewComponent() {
     };
 
     // Show loading state while initializing
-    if (isLoadingSessions && !initialLoadDone.current) {
+    if (isLoadingSessions && !hasInitialized.current) {
         return (
             <div className="flex h-screen bg-gray-900 items-center justify-center">
                 <div className="text-center">
