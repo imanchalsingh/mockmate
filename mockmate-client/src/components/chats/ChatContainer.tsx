@@ -566,7 +566,7 @@ export default function UnifiedInterviewComponent() {
                                         <div className="w-2 h-2 bg-yellow-400/50 rounded-full animate-bounce [animation-delay:0.4s]"></div>
                                     </div>
                                     <span className="text-xs text-gray-400">
-                                        {isProcessing ? "AI is thinking..." : "Speaking..."}
+                                        {isProcessing ? "Your Mate thinking..." : "Speaking..."}
                                     </span>
                                 </div>
                             </div>
