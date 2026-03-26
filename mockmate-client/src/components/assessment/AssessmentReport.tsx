@@ -72,12 +72,12 @@ export default function AssessmentReport() {
     return "stroke-red-400";
   };
 
-  const getScoreBgColor = (score: number) => {
-    if (score >= 80) return "bg-green-400/10";
-    if (score >= 60) return "bg-yellow-400/10";
-    if (score >= 40) return "bg-orange-400/10";
-    return "bg-red-400/10";
-  };
+  // const getScoreBgColor = (score: number) => {
+  //   if (score >= 80) return "bg-green-400/10";
+  //   if (score >= 60) return "bg-yellow-400/10";
+  //   if (score >= 40) return "bg-orange-400/10";
+  //   return "bg-red-400/10";
+  // };
 
   if (loading) {
     return (
@@ -357,9 +357,9 @@ export default function AssessmentReport() {
 
         {/* Summary Section */}
         {(report.report.summary || report.report.finalVerdict) && (
-          <div className="mt-8 bg-gradient-to-r from-yellow-400/10 to-transparent border border-yellow-400/30 rounded-xl p-6">
+          <div className="mt-8 bg-linear-to-r from-yellow-400/10 to-transparent border border-yellow-400/30 rounded-xl p-6">
             <div className="flex items-start gap-3">
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 <svg className="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
