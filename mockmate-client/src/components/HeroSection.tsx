@@ -28,8 +28,7 @@ const HeroSection: React.FC = () => {
             title: "AI Assessments",
             description: "Practice through comprehensive assessments",
             icon: <FileText className="w-8 h-8 md:w-10 md:h-10" />,
-            route: "/ai-assessment",
-            comingSoon: true
+            route: "/assessment/create",
         },
         {
             id: "technical",

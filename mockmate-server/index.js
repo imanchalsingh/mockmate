@@ -5,6 +5,8 @@ import cors from 'cors';
 import interviewRouter from './src/routes/interview.js';
 import { connectDB } from "./src/config/db.js";
 import authRoutes from "./src/routes/auth.js";
+import assessmentRoutes from "./src/routes/assessment.js";
+
 
 const PORT = process.env.PORT || 5000;
 connectDB();
@@ -17,7 +19,7 @@ app.use(cors());
 
 app.use('/api/interview', interviewRouter);
 app.use("/api/auth", authRoutes);
-
+app.use("/api/interview/assessment", assessmentRoutes);
 
 app.listen(PORT, () => {
     console.log(`Mockmate server is running on port ${PORT}`);
