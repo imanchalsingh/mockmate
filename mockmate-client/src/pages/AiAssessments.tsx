@@ -1,8 +1,11 @@
 import React from 'react'
+import AiAssessment from '../components/assessment/AiAssessment'
 
 const AiAssessments: React.FC = () => {
     return (
-        <div>AiAssessments</div>
+        <div>
+            <AiAssessment/>
+        </div>
     )
 }
 
